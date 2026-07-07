@@ -1,0 +1,723 @@
+NOTE --- To save your SQL queries along with their corresponding outputs in a single file, the method depends entirely on the environment or Database Management System (DBMS) you are using.Here are the most efficient ways to capture both the exact query text and its results together.1. The Command Line Method (Best for Logging Everything)If you run queries through a command-line interface, you can output both the executed statements and their results directly into a .txt or .log file.MySQL / MariaDB (tee command):Log into your MySQL client and use the tee command. Every query you type and its output tabular data will be continuously saved.sqlmysql> tee /path/to/your/logfile.txt;
+Logging to file '/path/to/your/logfile.txt'
+
+mysql> SELECT * FROM users LIMIT 2;
+-- Both this query and the result grid are now saved to logfile.txt
+
+mysql> notee; -- Stops the logging
+___________________________________________________________________________________________________________________________________
+
+
+mysql> CREATE DATABASE MYDB;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE MYDB;
+Database changed
+mysql> DROP DATABASE MYDB;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DROP DATABASE IF EXISTS MYDB;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> DROP DATABASE MYDB;
+ERROR 1008 (HY000): Can't drop database 'mydb'; database doesn't exist
+mysql> SHOW WARNINGS;
++-------+------+----------------------------------------------------+
+| Level | Code | Message                                            |
++-------+------+----------------------------------------------------+
+| Error | 1008 | Can't drop database 'mydb'; database doesn't exist |
++-------+------+----------------------------------------------------+
+1 row in set (0.00 sec)
+
+___________________________________________________________________________________________________________________________________
+
+
+
+mysql> -- 1. Create and switch to the database
+mysql> CREATE DATABASE IF NOT EXISTS CollegeDB;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE CollegeDB;
+Database changed
+mysql> 
+mysql> -- 2. Create the Department Table (Parent Table)
+mysql> CREATE TABLE Department (
+    ->     EMPID INT PRIMARY KEY,
+    ->     NAME VARCHAR(100) NOT NULL
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> -- 3. Create the Professor Table (Child Table)
+mysql> CREATE TABLE Professor (
+    ->     ID INT PRIMARY KEY,
+    ->     NAME VARCHAR(100) NOT NULL,
+    ->     AGE INT CHECK (AGE >= 21),                -- Ensures valid working age
+    ->     SUBJECT VARCHAR(100) NOT NULL,
+    ->     SALARY DECIMAL(10, 2) CHECK (SALARY > 0),  -- Stores precise numeric salaries (e.g., 85000.00)
+    ->     Dept_EMPID INT,
+    ->     FOREIGN KEY (Dept_EMPID) REFERENCES Department(EMPID) 
+    ->     ON DELETE SET NULL                        -- Keeps professor data safe if a department is deleted
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> -- Populate Department Table
+mysql> INSERT INTO Department (EMPID, NAME) VALUES
+    -> (101, 'Computer Science'),
+    -> (102, 'Data Science'),
+    -> (103, 'Information Technology'),
+    -> (104, 'Mathematics'),
+    -> (105, 'Electrical Engineering');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Populate Professor Table (Including updated salaries matching their departments)
+mysql> INSERT INTO Professor (ID, NAME, AGE, SUBJECT, SALARY, Dept_EMPID) VALUES
+    -> (1, 'Dr. Amit Sharma', 45, 'Data Structures', 95000.00, 101),
+    -> (2, 'Prof. Priya Nair', 38, 'Machine Learning', 105000.50, 102),
+    -> (3, 'Dr. Raj Vikram', 52, 'Web Development', 88000.00, 103),
+    -> (4, 'Prof. Sneha Reddy', 29, 'Linear Algebra', 62000.00, 104),
+    -> (5, 'Dr. Vikram Malhotra', 41, 'Circuit Analysis', 79000.75, 105);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM Department;
++-------+------------------------+
+| EMPID | NAME                   |
++-------+------------------------+
+|   101 | Computer Science       |
+|   102 | Data Science           |
+|   103 | Information Technology |
+|   104 | Mathematics            |
+|   105 | Electrical Engineering |
++-------+------------------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Professor;
++----+---------------------+------+------------------+-----------+------------+
+| ID | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID |
++----+---------------------+------+------------------+-----------+------------+
+|  1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 |
+|  2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 |
+|  3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 |
+|  4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 |
+|  5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 |
++----+---------------------+------+------------------+-----------+------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT NAME ,SALARY FROM PROFESSOR WHERE AGE > 40 AND SALARY > 50000;
++---------------------+----------+
+| NAME                | SALARY   |
++---------------------+----------+
+| Dr. Amit Sharma     | 95000.00 |
+| Dr. Raj Vikram      | 88000.00 |
+| Dr. Vikram Malhotra | 79000.75 |
++---------------------+----------+
+3 rows in set (0.00 sec)
+
+mysql> ALTER TABLE PROFESSOR ADD ADD VARCHAR(100);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ADD VARCHAR(100)' at line 1
+
+mysql> ALTER TABLE PROFESSOR ADD ADDR VARCHAR(100);
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE PROFESSOR DROP ADDR ;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE PROFESSOR ADD ADDR VARCHAR(100);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE PROFESSOR ;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| ID         | int           | NO   | PRI | NULL    |       |
+| NAME       | varchar(100)  | NO   |     | NULL    |       |
+| AGE        | int           | YES  |     | NULL    |       |
+| SUBJECT    | varchar(100)  | NO   |     | NULL    |       |
+| SALARY     | decimal(10,2) | YES  |     | NULL    |       |
+| Dept_EMPID | int           | YES  | MUL | NULL    |       |
+| ADDR       | varchar(100)  | YES  |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> RENAME TABLE PROFESSOR TO PROF;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> SHOW TABLES;
++---------------------+
+| Tables_in_collegedb |
++---------------------+
+| department          |
+| prof                |
++---------------------+
+2 rows in set (0.01 sec)
+
+mysql> RENAME TABLE DEPARTMENT TO DEP;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE DATABASE MYDB;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE MYDB;
+Database changed
+mysql> DROP DATABASE MYDB;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DROP DATABASE IF EXISTS MYDB;
+Query OK, 0 rows affected, 1 warning (0.01 sec)
+
+mysql> DROP DATABASE MYDB;
+ERROR 1008 (HY000): Can't drop database 'mydb'; database doesn't exist
+mysql> SHOW WARNINGS;
++-------+------+----------------------------------------------------+
+| Level | Code | Message                                            |
++-------+------+----------------------------------------------------+
+| Error | 1008 | Can't drop database 'mydb'; database doesn't exist |
++-------+------+----------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM PROF;
+ERROR 1046 (3D000): No database selected
+mysql> USE COLLEGEDB;
+Database changed
+mysql> SELECT * FROM PROF;
++----+---------------------+------+------------------+-----------+------------+------+
+| ID | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID | ADDR |
++----+---------------------+------+------------------+-----------+------------+------+
+|  1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 | NULL |
+|  2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 | NULL |
+|  3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 | NULL |
+|  4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 | NULL |
+|  5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 | NULL |
++----+---------------------+------+------------------+-----------+------------+------+
+5 rows in set (0.00 sec)
+
+
+
+mysql> SHOW TABLES;
++---------------------+
+| Tables_in_collegedb |
++---------------------+
+| dep                 |
+| prof                |
++---------------------+
+2 rows in set (0.00 sec)
+
+mysql> DESCRIBE PROF;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| ID         | int           | NO   | PRI | NULL    |       |
+| NAME       | varchar(100)  | NO   |     | NULL    |       |
+| AGE        | int           | YES  |     | NULL    |       |
+| SUBJECT    | varchar(100)  | NO   |     | NULL    |       |
+| SALARY     | decimal(10,2) | YES  |     | NULL    |       |
+| Dept_EMPID | int           | YES  | MUL | NULL    |       |
+| ADDR       | varchar(100)  | YES  |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT * FROM PROF ORDER BY AGE;
++----+---------------------+------+------------------+-----------+------------+------+
+| ID | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID | ADDR |
++----+---------------------+------+------------------+-----------+------------+------+
+|  4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 | NULL |
+|  2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 | NULL |
+|  5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 | NULL |
+|  1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 | NULL |
+|  3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 | NULL |
++----+---------------------+------+------------------+-----------+------------+------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM PROF ORDER BY AGE DESC;
++----+---------------------+------+------------------+-----------+------------+------+
+| ID | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID | ADDR |
++----+---------------------+------+------------------+-----------+------------+------+
+|  3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 | NULL |
+|  1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 | NULL |
+|  5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 | NULL |
+|  2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 | NULL |
+|  4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 | NULL |
++----+---------------------+------+------------------+-----------+------------+------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM PROF ORDER BY AGE ASC;
++----+---------------------+------+------------------+-----------+------------+------+
+| ID | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID | ADDR |
++----+---------------------+------+------------------+-----------+------------+------+
+|  4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 | NULL |
+|  2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 | NULL |
+|  5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 | NULL |
+|  1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 | NULL |
+|  3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 | NULL |
++----+---------------------+------+------------------+-----------+------------+------+
+5 rows in set (0.00 sec)
+
+mysql> -- Create the Teacher Table
+mysql> CREATE TABLE Teacher (
+    ->     EMPID INT PRIMARY KEY,
+    ->     NAME VARCHAR(100) NOT NULL,
+    ->     AGE INT CHECK (AGE >= 21),                  -- Validates employment age
+    ->     LOCATION VARCHAR(100) NOT NULL,
+    ->     SALARY DECIMAL(10, 2) CHECK (SALARY > 0),    -- Handles precise monthly/annual pay
+    ->     EXP INT CHECK (EXP >= 0)                    -- Experience in years cannot be negative
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO Teacher (EMPID, NAME, AGE, LOCATION, SALARY, EXP) VALUES
+    -> (201, 'Ananya Iyer', 28, 'Bengaluru', 55000.00, 4),
+    -> (202, 'Rahul Verma', 42, 'Delhi', 88000.50, 15),
+    -> (203, 'Meera Nair', 35, 'Mumbai', 72000.00, 9),
+    -> (204, 'Siddharth Das', 50, 'Kolkata', 110000.00, 22),
+    -> (205, 'Pooja Patel', 31, 'Ahmedabad', 61000.25, 6),
+    -> (206, 'Amit Joshi', 47, 'Pune', 95000.00, 18),
+    -> (207, 'Sneha Kapoor', 26, 'Chandigarh', 48000.00, 2),
+    -> (208, 'Vikram Singh', 55, 'Jaipur', 125000.75, 27),
+    -> (209, 'Divya Reddy', 39, 'Hyderabad', 83000.00, 12),
+    -> (210, 'Manoj Mishra', 33, 'Lucknow', 59000.00, 7);
+Query OK, 10 rows affected (0.05 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM TEACHER;
++-------+---------------+------+------------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION   | SALARY    | EXP  |
++-------+---------------+------+------------+-----------+------+
+|   201 | Ananya Iyer   |   28 | Bengaluru  |  55000.00 |    4 |
+|   202 | Rahul Verma   |   42 | Delhi      |  88000.50 |   15 |
+|   203 | Meera Nair    |   35 | Mumbai     |  72000.00 |    9 |
+|   204 | Siddharth Das |   50 | Kolkata    | 110000.00 |   22 |
+|   205 | Pooja Patel   |   31 | Ahmedabad  |  61000.25 |    6 |
+|   206 | Amit Joshi    |   47 | Pune       |  95000.00 |   18 |
+|   207 | Sneha Kapoor  |   26 | Chandigarh |  48000.00 |    2 |
+|   208 | Vikram Singh  |   55 | Jaipur     | 125000.75 |   27 |
+|   209 | Divya Reddy   |   39 | Hyderabad  |  83000.00 |   12 |
+|   210 | Manoj Mishra  |   33 | Lucknow    |  59000.00 |    7 |
++-------+---------------+------+------------+-----------+------+
+10 rows in set (0.00 sec)
+
+-- IF USED WITHOUT WHERE CLAUSE , UPDATES ALL RECORDS
+mysql> UPDATE TEACHER SET LOCATION = "LUCKNOW" ; 
+Query OK, 10 rows affected (0.01 sec)
+Rows matched: 10  Changed: 10  Warnings: 0
+
+mysql> SELECT * FROM TEACHER;
++-------+---------------+------+----------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION | SALARY    | EXP  |
++-------+---------------+------+----------+-----------+------+
+|   201 | Ananya Iyer   |   28 | LUCKNOW  |  55000.00 |    4 |
+|   202 | Rahul Verma   |   42 | LUCKNOW  |  88000.50 |   15 |
+|   203 | Meera Nair    |   35 | LUCKNOW  |  72000.00 |    9 |
+|   204 | Siddharth Das |   50 | LUCKNOW  | 110000.00 |   22 |
+|   205 | Pooja Patel   |   31 | LUCKNOW  |  61000.25 |    6 |
+|   206 | Amit Joshi    |   47 | LUCKNOW  |  95000.00 |   18 |
+|   207 | Sneha Kapoor  |   26 | LUCKNOW  |  48000.00 |    2 |
+|   208 | Vikram Singh  |   55 | LUCKNOW  | 125000.75 |   27 |
+|   209 | Divya Reddy   |   39 | LUCKNOW  |  83000.00 |   12 |
+|   210 | Manoj Mishra  |   33 | LUCKNOW  |  59000.00 |    7 |
++-------+---------------+------+----------+-----------+------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT EMPID, NAME, SALARY, EXP 
+    -> FROM Teacher 
+    -> ORDER BY SALARY DESC 
+    -> LIMIT 5;
++-------+---------------+-----------+------+
+| EMPID | NAME          | SALARY    | EXP  |
++-------+---------------+-----------+------+
+|   208 | Vikram Singh  | 125000.75 |   27 |
+|   204 | Siddharth Das | 110000.00 |   22 |
+|   206 | Amit Joshi    |  95000.00 |   18 |
+|   202 | Rahul Verma   |  88000.50 |   15 |
+|   209 | Divya Reddy   |  83000.00 |   12 |
++-------+---------------+-----------+------+
+5 rows in set (0.00 sec)
+
+-- This is the best approach when you want to make sure that if teachers have identical salaries,
+--  they are all included in your top-5 list without skipping any rank positions underneath them.
+
+mysql> WITH RankedSalaries AS (
+    ->     SELECT EMPID, NAME, LOCATION, SALARY, EXP,
+    ->            DENSE_RANK() OVER (ORDER BY SALARY DESC) AS salary_rank
+    ->     FROM Teacher
+    -> )
+    -> SELECT EMPID, NAME, LOCATION, SALARY, EXP, salary_rank
+    -> FROM RankedSalaries
+    -> WHERE salary_rank <= 5;
++-------+---------------+----------+-----------+------+-------------+
+| EMPID | NAME          | LOCATION | SALARY    | EXP  | salary_rank |
++-------+---------------+----------+-----------+------+-------------+
+|   208 | Vikram Singh  | LUCKNOW  | 125000.75 |   27 |           1 |
+|   204 | Siddharth Das | LUCKNOW  | 110000.00 |   22 |           2 |
+|   206 | Amit Joshi    | LUCKNOW  |  95000.00 |   18 |           3 |
+|   202 | Rahul Verma   | LUCKNOW  |  88000.50 |   15 |           4 |
+|   209 | Divya Reddy   | LUCKNOW  |  83000.00 |   12 |           5 |
++-------+---------------+----------+-----------+------+-------------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT * FROM TEACHER WHERE SALARY BETWEEN 40000 AND 70000 ;
++-------+--------------+------+----------+----------+------+
+| EMPID | NAME         | AGE  | LOCATION | SALARY   | EXP  |
++-------+--------------+------+----------+----------+------+
+|   201 | Ananya Iyer  |   28 | LUCKNOW  | 55000.00 |    4 |
+|   205 | Pooja Patel  |   31 | LUCKNOW  | 61000.25 |    6 |
+|   207 | Sneha Kapoor |   26 | LUCKNOW  | 48000.00 |    2 |
+|   210 | Manoj Mishra |   33 | LUCKNOW  | 59000.00 |    7 |
++-------+--------------+------+----------+----------+------+
+4 rows in set (0.00 sec)
+
+-- RAND(): Generates a random decimal number between 0 and 1.
+-- FLOOR(RAND() * 4) + 1: Multiplies the random number by 4, rounds it down to the nearest whole number 
+-- (resulting in 0, 1, 2, or 3), and adds 1 to result in a range of 1 to 4.
+-- ELT(n, 'str1', 'str2', ...): This function returns the string at the position specified by n. For example, 
+-- if the math results in 2, it picks 'MUMBAI'.
+mysql> UPDATE TEACHER 
+    -> SET LOCATION = ELT(FLOOR(RAND() * 4) + 1, 'DELHI', 'MUMBAI', 'PUNE', 'BANGALORE');
+Query OK, 10 rows affected (0.01 sec)
+Rows matched: 10  Changed: 10  Warnings: 0
+
+mysql> SELECT * FROM TEACHER;
++-------+---------------+------+-----------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION  | SALARY    | EXP  |
++-------+---------------+------+-----------+-----------+------+
+|   201 | Ananya Iyer   |   28 | BANGALORE |  55000.00 |    4 |
+|   202 | Rahul Verma   |   42 | DELHI     |  88000.50 |   15 |
+|   203 | Meera Nair    |   35 | MUMBAI    |  72000.00 |    9 |
+|   204 | Siddharth Das |   50 | PUNE      | 110000.00 |   22 |
+|   205 | Pooja Patel   |   31 | DELHI     |  61000.25 |    6 |
+|   206 | Amit Joshi    |   47 | DELHI     |  95000.00 |   18 |
+|   207 | Sneha Kapoor  |   26 | PUNE      |  48000.00 |    2 |
+|   208 | Vikram Singh  |   55 | BANGALORE | 125000.75 |   27 |
+|   209 | Divya Reddy   |   39 | PUNE      |  83000.00 |   12 |
+|   210 | Manoj Mishra  |   33 | PUNE      |  59000.00 |    7 |
++-------+---------------+------+-----------+-----------+------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE LOCATION IN ('PUNE','DELHI');
++-------+---------------+------+----------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION | SALARY    | EXP  |
++-------+---------------+------+----------+-----------+------+
+|   202 | Rahul Verma   |   42 | DELHI    |  88000.50 |   15 |
+|   204 | Siddharth Das |   50 | PUNE     | 110000.00 |   22 |
+|   205 | Pooja Patel   |   31 | DELHI    |  61000.25 |    6 |
+|   206 | Amit Joshi    |   47 | DELHI    |  95000.00 |   18 |
+|   207 | Sneha Kapoor  |   26 | PUNE     |  48000.00 |    2 |
+|   209 | Divya Reddy   |   39 | PUNE     |  83000.00 |   12 |
+|   210 | Manoj Mishra  |   33 | PUNE     |  59000.00 |    7 |
++-------+---------------+------+----------+-----------+------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE LOCATION NOT IN ('PUNE','DELHI');
++-------+--------------+------+-----------+-----------+------+
+| EMPID | NAME         | AGE  | LOCATION  | SALARY    | EXP  |
++-------+--------------+------+-----------+-----------+------+
+|   201 | Ananya Iyer  |   28 | BANGALORE |  55000.00 |    4 |
+|   203 | Meera Nair   |   35 | MUMBAI    |  72000.00 |    9 |
+|   208 | Vikram Singh |   55 | BANGALORE | 125000.75 |   27 |
++-------+--------------+------+-----------+-----------+------+
+3 rows in set (0.00 sec)
+
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('A%');
++-------+-------------+------+-----------+----------+------+
+| EMPID | NAME        | AGE  | LOCATION  | SALARY   | EXP  |
++-------+-------------+------+-----------+----------+------+
+|   201 | Ananya Iyer |   28 | BANGALORE | 55000.00 |    4 |
+|   206 | Amit Joshi  |   47 | DELHI     | 95000.00 |   18 |
++-------+-------------+------+-----------+----------+------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%A');
++-------+--------------+------+----------+----------+------+
+| EMPID | NAME         | AGE  | LOCATION | SALARY   | EXP  |
++-------+--------------+------+----------+----------+------+
+|   202 | Rahul Verma  |   42 | DELHI    | 88000.50 |   15 |
+|   210 | Manoj Mishra |   33 | PUNE     | 59000.00 |    7 |
++-------+--------------+------+----------+----------+------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%A%');
++-------+---------------+------+-----------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION  | SALARY    | EXP  |
++-------+---------------+------+-----------+-----------+------+
+|   201 | Ananya Iyer   |   28 | BANGALORE |  55000.00 |    4 |
+|   202 | Rahul Verma   |   42 | DELHI     |  88000.50 |   15 |
+|   203 | Meera Nair    |   35 | MUMBAI    |  72000.00 |    9 |
+|   204 | Siddharth Das |   50 | PUNE      | 110000.00 |   22 |
+|   205 | Pooja Patel   |   31 | DELHI     |  61000.25 |    6 |
+|   206 | Amit Joshi    |   47 | DELHI     |  95000.00 |   18 |
+|   207 | Sneha Kapoor  |   26 | PUNE      |  48000.00 |    2 |
+|   208 | Vikram Singh  |   55 | BANGALORE | 125000.75 |   27 |
+|   209 | Divya Reddy   |   39 | PUNE      |  83000.00 |   12 |
+|   210 | Manoj Mishra  |   33 | PUNE      |  59000.00 |    7 |
++-------+---------------+------+-----------+-----------+------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%A_L');
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%ARS_I%');
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%A_I');
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM TEACHER WHERE NAME LIKE ('%A_');
++-------+---------------+------+----------+-----------+------+
+| EMPID | NAME          | AGE  | LOCATION | SALARY    | EXP  |
++-------+---------------+------+----------+-----------+------+
+|   204 | Siddharth Das |   50 | PUNE     | 110000.00 |   22 |
++-------+---------------+------+----------+-----------+------+
+1 row in set (0.00 sec)
+mysql> SELECT AVG(SALARY) FROM TEACHER;
++--------------+
+| AVG(SALARY)  |
++--------------+
+| 79600.150000 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT MAX\(SALARY) FROM TEACHER;
+ERROR: 
+Unknown command '\('.
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\(SALARY) FROM TEACHER' at line 1
+mysql> SELECT MAX(SALARY) FROM TEACHER;
++-------------+
+| MAX(SALARY) |
++-------------+
+|   125000.75 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT MIN(SALARY) FROM TEACHER;
++-------------+
+| MIN(SALARY) |
++-------------+
+|    48000.00 |
++-------------+
+1 row in set (0.03 sec)
+
+mysql> DESCRIBE TEACHER;
++----------+---------------+------+-----+---------+-------+
+| Field    | Type          | Null | Key | Default | Extra |
++----------+---------------+------+-----+---------+-------+
+| EMPID    | int           | NO   | PRI | NULL    |       |
+| NAME     | varchar(100)  | NO   |     | NULL    |       |
+| AGE      | int           | YES  |     | NULL    |       |
+| LOCATION | varchar(100)  | NO   |     | NULL    |       |
+| SALARY   | decimal(10,2) | YES  |     | NULL    |       |
+| EXP      | int           | YES  |     | NULL    |       |
++----------+---------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> ALTER TABLE TEACHER ADD COLUMN DEP VARCHAR(50);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> UPDATE TEACHER 
+    -> SET DEP = CASE EMPID
+    ->     WHEN 201 THEN 'Math'
+    ->     WHEN 202 THEN 'Physics'
+    ->     WHEN 203 THEN 'Chemistry'
+    ->     WHEN 204 THEN 'Computer Science'
+    ->     WHEN 205 THEN 'History'
+    ->     WHEN 206 THEN 'English'
+    ->     WHEN 207 THEN 'Biology'
+    ->     WHEN 208 THEN 'Math'
+    ->     WHEN 209 THEN 'Physics'
+    ->     WHEN 210 THEN 'Chemistry'
+    -> END;
+Query OK, 10 rows affected (0.01 sec)
+Rows matched: 10  Changed: 10  Warnings: 0
+
+mysql> SELECT * FROM TEACHER;
++-------+---------------+------+-----------+-----------+------+------------------+
+| EMPID | NAME          | AGE  | LOCATION  | SALARY    | EXP  | DEP              |
++-------+---------------+------+-----------+-----------+------+------------------+
+|   201 | Ananya Iyer   |   28 | BANGALORE |  55000.00 |    4 | Math             |
+|   202 | Rahul Verma   |   42 | DELHI     |  88000.50 |   15 | Physics          |
+|   203 | Meera Nair    |   35 | MUMBAI    |  72000.00 |    9 | Chemistry        |
+|   204 | Siddharth Das |   50 | PUNE      | 110000.00 |   22 | Computer Science |
+|   205 | Pooja Patel   |   31 | DELHI     |  61000.25 |    6 | History          |
+|   206 | Amit Joshi    |   47 | DELHI     |  95000.00 |   18 | English          |
+|   207 | Sneha Kapoor  |   26 | PUNE      |  48000.00 |    2 | Biology          |
+|   208 | Vikram Singh  |   55 | BANGALORE | 125000.75 |   27 | Math             |
+|   209 | Divya Reddy   |   39 | PUNE      |  83000.00 |   12 | Physics          |
+|   210 | Manoj Mishra  |   33 | PUNE      |  59000.00 |    7 | Chemistry        |
++-------+---------------+------+-----------+-----------+------+------------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT DEP , AVG(SALARY) FROM TEACHER GROUP BY DEP;
++------------------+---------------+
+| DEP              | AVG(SALARY)   |
++------------------+---------------+
+| Math             |  90000.375000 |
+| Physics          |  85500.250000 |
+| Chemistry        |  65500.000000 |
+| Computer Science | 110000.000000 |
+| History          |  61000.250000 |
+| English          |  95000.000000 |
+| Biology          |  48000.000000 |
++------------------+---------------+
+7 rows in set (0.00 sec)
+mysql> SELECT * FROM PROF UNION SELECT * FROM TEACHER;
++-----+---------------------+------+------------------+-----------+------------+------------------+
+| ID  | NAME                | AGE  | SUBJECT          | SALARY    | Dept_EMPID | ADDR             |
++-----+---------------------+------+------------------+-----------+------------+------------------+
+|   1 | Dr. Amit Sharma     |   45 | Data Structures  |  95000.00 |        101 | NULL             |
+|   2 | Prof. Priya Nair    |   38 | Machine Learning | 105000.50 |        102 | NULL             |
+|   3 | Dr. Raj Vikram      |   52 | Web Development  |  88000.00 |        103 | NULL             |
+|   4 | Prof. Sneha Reddy   |   29 | Linear Algebra   |  62000.00 |        104 | NULL             |
+|   5 | Dr. Vikram Malhotra |   41 | Circuit Analysis |  79000.75 |        105 | NULL             |
+| 201 | Ananya Iyer         |   28 | BANGALORE        |  55000.00 |          4 | Math             |
+| 202 | Rahul Verma         |   42 | DELHI            |  88000.50 |         15 | Physics          |
+| 203 | Meera Nair          |   35 | MUMBAI           |  72000.00 |          9 | Chemistry        |
+| 204 | Siddharth Das       |   50 | PUNE             | 110000.00 |         22 | Computer Science |
+| 205 | Pooja Patel         |   31 | DELHI            |  61000.25 |          6 | History          |
+| 206 | Amit Joshi          |   47 | DELHI            |  95000.00 |         18 | English          |
+| 207 | Sneha Kapoor        |   26 | PUNE             |  48000.00 |          2 | Biology          |
+| 208 | Vikram Singh        |   55 | BANGALORE        | 125000.75 |         27 | Math             |
+| 209 | Divya Reddy         |   39 | PUNE             |  83000.00 |         12 | Physics          |
+| 210 | Manoj Mishra        |   33 | PUNE             |  59000.00 |          7 | Chemistry        |
++-----+---------------------+------+------------------+-----------+------------+------------------+
+15 rows in set (0.00 sec)
+
+mysql> SELECT 
+    ->     ID AS "Employee_ID", 
+    ->     NAME AS "Full_Name", 
+    ->     AGE AS "Age_Years", 
+    ->     SUBJECT AS "Location_or_Subject", 
+    ->     SALARY AS "Monthly_Salary", 
+    ->     Dept_EMPID AS "Experience_Years", 
+    ->     ADDR AS "Department"
+    -> FROM PROF 
+    -> UNION 
+    -> SELECT * FROM TEACHER;
++-------------+---------------------+-----------+---------------------+----------------+------------------+------------------+
+| Employee_ID | Full_Name           | Age_Years | Location_or_Subject | Monthly_Salary | Experience_Years | Department       |
++-------------+---------------------+-----------+---------------------+----------------+------------------+------------------+
+|           1 | Dr. Amit Sharma     |        45 | Data Structures     |       95000.00 |              101 | NULL             |
+|           2 | Prof. Priya Nair    |        38 | Machine Learning    |      105000.50 |              102 | NULL             |
+|           3 | Dr. Raj Vikram      |        52 | Web Development     |       88000.00 |              103 | NULL             |
+|           4 | Prof. Sneha Reddy   |        29 | Linear Algebra      |       62000.00 |              104 | NULL             |
+|           5 | Dr. Vikram Malhotra |        41 | Circuit Analysis    |       79000.75 |              105 | NULL             |
+|         201 | Ananya Iyer         |        28 | BANGALORE           |       55000.00 |                4 | Math             |
+|         202 | Rahul Verma         |        42 | DELHI               |       88000.50 |               15 | Physics          |
+|         203 | Meera Nair          |        35 | MUMBAI              |       72000.00 |                9 | Chemistry        |
+|         204 | Siddharth Das       |        50 | PUNE                |      110000.00 |               22 | Computer Science |
+|         205 | Pooja Patel         |        31 | DELHI               |       61000.25 |                6 | History          |
+|         206 | Amit Joshi          |        47 | DELHI               |       95000.00 |               18 | English          |
+|         207 | Sneha Kapoor        |        26 | PUNE                |       48000.00 |                2 | Biology          |
+|         208 | Vikram Singh        |        55 | BANGALORE           |      125000.75 |               27 | Math             |
+|         209 | Divya Reddy         |        39 | PUNE                |       83000.00 |               12 | Physics          |
+|         210 | Manoj Mishra        |        33 | PUNE                |       59000.00 |                7 | Chemistry        |
++-------------+---------------------+-----------+---------------------+----------------+------------------+------------------+
+15 rows in set (0.00 sec)
+
+
+mysql> -- Create the Students table
+mysql> CREATE TABLE STUDENTS (
+    ->     id INT PRIMARY KEY,
+    ->     name VARCHAR(50),
+    ->     c_id INT
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> -- Insert 5 records
+mysql> INSERT INTO STUDENTS VALUES 
+    -> (1, 'Alice', 101),
+    -> (2, 'Bob', 102),
+    -> (3, 'Charlie', 101),
+    -> (4, 'David', 103),
+    -> (5, 'Eve', NULL); -- Eve has no course assigned
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> -- Create the Courses table
+mysql> CREATE TABLE COURSES (
+    ->     c_id INT PRIMARY KEY,
+    ->     c_name VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> -- Insert 3 records
+mysql> INSERT INTO COURSES VALUES 
+    -> (101, 'Database'),
+    -> (102, 'Python'),
+    -> (104, 'Web Design'); -- No student is currently in this course
+Query OK, 3 rows affected (0.04 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+-- INNER JOIN (Matches only when both sides have data)
+mysql> SELECT STUDENTS.name, COURSES.c_name 
+    -> FROM STUDENTS 
+    -> INNER JOIN COURSES ON STUDENTS.c_id = COURSES.c_id;
++---------+----------+
+| name    | c_name   |
++---------+----------+
+| Alice   | Database |
+| Bob     | Python   |
+| Charlie | Database |
++---------+----------+
+3 rows in set (0.00 sec)
+
+-- LEFT JOIN (Shows all students, even if they aren't in a course)
+mysql> SELECT STUDENTS.name, COURSES.c_name 
+    -> FROM STUDENTS 
+    -> LEFT JOIN COURSES ON STUDENTS.c_id = COURSES.c_id;
++---------+----------+
+| name    | c_name   |
++---------+----------+
+| Alice   | Database |
+| Bob     | Python   |
+| Charlie | Database |
+| David   | NULL     |
+| Eve     | NULL     |
++---------+----------+
+5 rows in set (0.00 sec)
+
+-- RIGHT JOIN (Shows all courses, even if no student has picked them)
+mysql> SELECT STUDENTS.name, COURSES.c_name 
+    -> FROM STUDENTS 
+    -> RIGHT JOIN COURSES ON STUDENTS.c_id = COURSES.c_id;
++---------+------------+
+| name    | c_name     |
++---------+------------+
+| Charlie | Database   |
+| Alice   | Database   |
+| Bob     | Python     |
+| NULL    | Web Design |
++---------+------------+
+4 rows in set (0.00 sec)
+
+-- A CROSS JOIN (also known as a Cartesian Product) is unique because it does not require a matching column or an ON clause.
+-- Instead, it pairs every single row from the first table with every single row from the second table.
+mysql> SELECT STUDENTS.name, COURSES.c_name
+    -> FROM STUDENTS
+    -> CROSS JOIN COURSES;
++---------+------------+
+| name    | c_name     |
++---------+------------+
+| Alice   | Web Design |
+| Alice   | Python     |
+| Alice   | Database   |
+| Bob     | Web Design |
+| Bob     | Python     |
+| Bob     | Database   |
+| Charlie | Web Design |
+| Charlie | Python     |
+| Charlie | Database   |
+| David   | Web Design |
+| David   | Python     |
+| David   | Database   |
+| Eve     | Web Design |
+| Eve     | Python     |
+| Eve     | Database   |
++---------+------------+
+15 rows in set (0.00 sec)
+
+
