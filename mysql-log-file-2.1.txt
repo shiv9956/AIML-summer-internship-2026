@@ -1,0 +1,685 @@
+mysql> USE OFFICE;
+Database changed
+mysql> SHOW TABLES;
++------------------+
+| Tables_in_office |
++------------------+
+| dept             |
+| emp              |
++------------------+
+2 rows in set (0.00 sec)
+
+mysql> DESCRIBE DEPT;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| dept_id   | int         | NO   | PRI | NULL    |       |
+| dept_name | varchar(50) | NO   |     | NULL    |       |
+| floor     | int         | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> DESCRIBE EMP;
++---------+---------------+------+-----+---------+-------+
+| Field   | Type          | Null | Key | Default | Extra |
++---------+---------------+------+-----+---------+-------+
+| emp_id  | int           | NO   | PRI | NULL    |       |
+| name    | varchar(50)   | NO   |     | NULL    |       |
+| age     | int           | YES  |     | NULL    |       |
+| loc     | varchar(50)   | YES  |     | NULL    |       |
+| dept_id | int           | YES  | MUL | NULL    |       |
+| salary  | decimal(10,2) | YES  |     | NULL    |       |
+| gender  | char(1)       | YES  |     | NULL    |       |
++---------+---------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT * FROM DEPT;
++---------+-----------+-------+
+| dept_id | dept_name | floor |
++---------+-----------+-------+
+|     101 | FINANCE   |     1 |
+|     102 | DEV       |     2 |
+|     103 | ANALYST   |     3 |
+|     104 | CLEANING  |     1 |
+|     105 | GUARDS    |     4 |
+|     106 | HR        |     2 |
++---------+-----------+-------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMP;
++--------+-----------------+------+---------------+---------+-----------+--------+
+| emp_id | name            | age  | loc           | dept_id | salary    | gender |
++--------+-----------------+------+---------------+---------+-----------+--------+
+|      1 | Alice Smith     |   28 | New York      |     102 |  85000.00 | F      |
+|      2 | Bob Johnson     |   35 | Chicago       |     101 |  62000.00 | M      |
+|      3 | Charlie Brown   |   42 | San Francisco |     102 | 110000.00 | M      |
+|      4 | Diana Prince    |   30 | Seattle       |     103 |  72000.00 | F      |
+|      5 | Evan Wright     |   25 | Austin        |     104 |  58000.00 | M      |
+|      6 | Fiona Gallagher |   29 | New York      |     105 |  67000.00 | F      |
+|      7 | George Clark    |   38 | Denver        |     106 |  75000.00 | M      |
+|      8 | Michael Scott   |   44 | Scranton      |     105 |  78000.00 | M      |
+|      9 | Oscar Martinez  |   39 | Chicago       |     104 |  71000.00 | M      |
++--------+-----------------+------+---------------+---------+-----------+--------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT NAME,SALARY FROM EMP ;
++-----------------+-----------+
+| NAME            | SALARY    |
++-----------------+-----------+
+| Alice Smith     |  85000.00 |
+| Bob Johnson     |  62000.00 |
+| Charlie Brown   | 110000.00 |
+| Diana Prince    |  72000.00 |
+| Evan Wright     |  58000.00 |
+| Fiona Gallagher |  67000.00 |
+| George Clark    |  75000.00 |
+| Michael Scott   |  78000.00 |
+| Oscar Martinez  |  71000.00 |
++-----------------+-----------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT NAME,LOC FROM EMP ;
++-----------------+---------------+
+| NAME            | LOC           |
++-----------------+---------------+
+| Alice Smith     | New York      |
+| Bob Johnson     | Chicago       |
+| Charlie Brown   | San Francisco |
+| Diana Prince    | Seattle       |
+| Evan Wright     | Austin        |
+| Fiona Gallagher | New York      |
+| George Clark    | Denver        |
+| Michael Scott   | Scranton      |
+| Oscar Martinez  | Chicago       |
++-----------------+---------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT NAME AS "EMPLOYEE WITH SALARY > 50000" FROM EMP WHERE SALARY > 50000 ;
++------------------------------+
+| EMPLOYEE WITH SALARY > 50000 |
++------------------------------+
+| Alice Smith                  |
+| Bob Johnson                  |
+| Charlie Brown                |
+| Diana Prince                 |
+| Evan Wright                  |
+| Fiona Gallagher              |
+| George Clark                 |
+| Michael Scott                |
+| Oscar Martinez               |
++------------------------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT NAME AS "EMPLOYEE WITH AGE > 25 " FROM EMP WHERE AGE >25 ;
++-------------------------+
+| EMPLOYEE WITH AGE > 25  |
++-------------------------+
+| Alice Smith             |
+| Bob Johnson             |
+| Charlie Brown           |
+| Diana Prince            |
+| Fiona Gallagher         |
+| George Clark            |
+| Michael Scott           |
+| Oscar Martinez          |
++-------------------------+
+8 rows in set (0.00 sec)
+
+mysql> SELECT NAME AS "FEMALE EMPLOYEES" FROM EMP WHERE GENDER ='F';
++------------------+
+| FEMALE EMPLOYEES |
++------------------+
+| Alice Smith      |
+| Diana Prince     |
+| Fiona Gallagher  |
++------------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT NAME AS "FEMALE EMPLOYEES BELONGING TO NEW YORK" FROM EMP WHERE LOC = 'NEW YORK';
++----------------------------------------+
+| FEMALE EMPLOYEES BELONGING TO NEW YORK |
++----------------------------------------+
+| Alice Smith                            |
+| Fiona Gallagher                        |
++----------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT NAME AS "SALARY BETWEEN 40000 AND 70000" FROM EMP WHERE SALARY BETWEEN 40000 AND 70000;
++--------------------------------+
+| SALARY BETWEEN 40000 AND 70000 |
++--------------------------------+
+| Bob Johnson                    |
+| Evan Wright                    |
+| Fiona Gallagher                |
++--------------------------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT NAME FROM EMP WHERE NAME LIKE 'A%';
++-------------+
+| NAME        |
++-------------+
+| Alice Smith |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT NAME FROM EMP WHERE NAME LIKE '%A';
+Empty set (0.00 sec)
+
+mysql> SELECT NAME FROM EMP WHERE LOC = 'NEW YORK' OR LOC = 'CHICAGO';
++-----------------+
+| NAME            |
++-----------------+
+| Alice Smith     |
+| Bob Johnson     |
+| Fiona Gallagher |
+| Oscar Martinez  |
++-----------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT NAME FROM EMP WHERE SALARY != 50000;
++-----------------+
+| NAME            |
++-----------------+
+| Alice Smith     |
+| Bob Johnson     |
+| Charlie Brown   |
+| Diana Prince    |
+| Evan Wright     |
+| Fiona Gallagher |
+| George Clark    |
+| Michael Scott   |
+| Oscar Martinez  |
++-----------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT NAME FROM EMP ORDER BY SALARY ;
++-----------------+
+| NAME            |
++-----------------+
+| Evan Wright     |
+| Bob Johnson     |
+| Fiona Gallagher |
+| Oscar Martinez  |
+| Diana Prince    |
+| George Clark    |
+| Michael Scott   |
+| Alice Smith     |
+| Charlie Brown   |
++-----------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMP ORDER BY SALARY ;
++--------+-----------------+------+---------------+---------+-----------+--------+
+| emp_id | name            | age  | loc           | dept_id | salary    | gender |
++--------+-----------------+------+---------------+---------+-----------+--------+
+|      5 | Evan Wright     |   25 | Austin        |     104 |  58000.00 | M      |
+|      2 | Bob Johnson     |   35 | Chicago       |     101 |  62000.00 | M      |
+|      6 | Fiona Gallagher |   29 | New York      |     105 |  67000.00 | F      |
+|      9 | Oscar Martinez  |   39 | Chicago       |     104 |  71000.00 | M      |
+|      4 | Diana Prince    |   30 | Seattle       |     103 |  72000.00 | F      |
+|      7 | George Clark    |   38 | Denver        |     106 |  75000.00 | M      |
+|      8 | Michael Scott   |   44 | Scranton      |     105 |  78000.00 | M      |
+|      1 | Alice Smith     |   28 | New York      |     102 |  85000.00 | F      |
+|      3 | Charlie Brown   |   42 | San Francisco |     102 | 110000.00 | M      |
++--------+-----------------+------+---------------+---------+-----------+--------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMP ORDER BY SALARY DESC;
++--------+-----------------+------+---------------+---------+-----------+--------+
+| emp_id | name            | age  | loc           | dept_id | salary    | gender |
++--------+-----------------+------+---------------+---------+-----------+--------+
+|      3 | Charlie Brown   |   42 | San Francisco |     102 | 110000.00 | M      |
+|      1 | Alice Smith     |   28 | New York      |     102 |  85000.00 | F      |
+|      8 | Michael Scott   |   44 | Scranton      |     105 |  78000.00 | M      |
+|      7 | George Clark    |   38 | Denver        |     106 |  75000.00 | M      |
+|      4 | Diana Prince    |   30 | Seattle       |     103 |  72000.00 | F      |
+|      9 | Oscar Martinez  |   39 | Chicago       |     104 |  71000.00 | M      |
+|      6 | Fiona Gallagher |   29 | New York      |     105 |  67000.00 | F      |
+|      2 | Bob Johnson     |   35 | Chicago       |     101 |  62000.00 | M      |
+|      5 | Evan Wright     |   25 | Austin        |     104 |  58000.00 | M      |
++--------+-----------------+------+---------------+---------+-----------+--------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMP ORDER BY SALARY DESC LIMIT 5;
++--------+---------------+------+---------------+---------+-----------+--------+
+| emp_id | name          | age  | loc           | dept_id | salary    | gender |
++--------+---------------+------+---------------+---------+-----------+--------+
+|      3 | Charlie Brown |   42 | San Francisco |     102 | 110000.00 | M      |
+|      1 | Alice Smith   |   28 | New York      |     102 |  85000.00 | F      |
+|      8 | Michael Scott |   44 | Scranton      |     105 |  78000.00 | M      |
+|      7 | George Clark  |   38 | Denver        |     106 |  75000.00 | M      |
+|      4 | Diana Prince  |   30 | Seattle       |     103 |  72000.00 | F      |
++--------+---------------+------+---------------+---------+-----------+--------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT COUNT(NAME) FROM EMP;
++-------------+
+| COUNT(NAME) |
++-------------+
+|           9 |
++-------------+
+1 row in set (0.04 sec)
+
+mysql> SELECT MAX(SALARY) FROM EMP;
++-------------+
+| MAX(SALARY) |
++-------------+
+|   110000.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT MIN(SALARY) FROM EMP;
++-------------+
+| MIN(SALARY) |
++-------------+
+|    58000.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT AVG(SALARY) FROM EMP;
++--------------+
+| AVG(SALARY)  |
++--------------+
+| 75333.333333 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT SUM(SALARY) FROM EMP;
++-------------+
+| SUM(SALARY) |
++-------------+
+|   678000.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(NAME) FROM EMP WHERE GENDER = 'M';
++-------------+
+| COUNT(NAME) |
++-------------+
+|           6 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(NAME) FROM EMP WHERE GENDER = 'F';
++-------------+
+| COUNT(NAME) |
++-------------+
+|           3 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT AVG(SALARY) FROM EMP GROUP BY DEPT_ID;
++--------------+
+| AVG(SALARY)  |
++--------------+
+| 62000.000000 |
+| 97500.000000 |
+| 72000.000000 |
+| 64500.000000 |
+| 72500.000000 |
+| 75000.000000 |
++--------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID,AVG(SALARY) FROM EMP GROUP BY DEPT_ID;
++---------+--------------+
+| DEPT_ID | AVG(SALARY)  |
++---------+--------------+
+|     101 | 62000.000000 |
+|     102 | 97500.000000 |
+|     103 | 72000.000000 |
+|     104 | 64500.000000 |
+|     105 | 72500.000000 |
+|     106 | 75000.000000 |
++---------+--------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID,MAX(SALARY) FROM EMP GROUP BY DEPT_ID;
++---------+-------------+
+| DEPT_ID | MAX(SALARY) |
++---------+-------------+
+|     101 |    62000.00 |
+|     102 |   110000.00 |
+|     103 |    72000.00 |
+|     104 |    71000.00 |
+|     105 |    78000.00 |
+|     106 |    75000.00 |
++---------+-------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID,MIN(SALARY) FROM EMP GROUP BY DEPT_ID;
++---------+-------------+
+| DEPT_ID | MIN(SALARY) |
++---------+-------------+
+|     101 |    62000.00 |
+|     102 |    85000.00 |
+|     103 |    72000.00 |
+|     104 |    58000.00 |
+|     105 |    67000.00 |
+|     106 |    75000.00 |
++---------+-------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID,SUM(SALARY) FROM EMP GROUP BY DEPT_ID;
++---------+-------------+
+| DEPT_ID | SUM(SALARY) |
++---------+-------------+
+|     101 |    62000.00 |
+|     102 |   195000.00 |
+|     103 |    72000.00 |
+|     104 |   129000.00 |
+|     105 |   145000.00 |
+|     106 |    75000.00 |
++---------+-------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID , COUNT(NAME) AS "DEPT HAVING EMPLOYEE > 3" FROM EMP GROUP BY DEPT_ID;
++---------+--------------------------+
+| DEPT_ID | DEPT HAVING EMPLOYEE > 3 |
++---------+--------------------------+
+|     101 |                        1 |
+|     102 |                        2 |
+|     103 |                        1 |
+|     104 |                        2 |
+|     105 |                        2 |
+|     106 |                        1 |
++---------+--------------------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID , COUNT(NAME) AS "DEPT HAVING EMPLOYEE > 3" FROM EMP GROUP BY DEPT_ID HAVING COUNT(NAME) > 3;
+Empty set (0.00 sec)
+
+mysql> SELECT DEPT_ID , COUNT(NAME) AS "DEPT HAVING EMPLOYEE > 3" FROM EMP GROUP BY DEPT_ID HAVING COUNT(NAME) > 2;
+Empty set (0.00 sec)
+
+mysql> SELECT DEPT_ID , COUNT(NAME) AS "DEPT HAVING EMPLOYEE > 3" FROM EMP GROUP BY DEPT_ID HAVING COUNT(NAME) > 1;
++---------+--------------------------+
+| DEPT_ID | DEPT HAVING EMPLOYEE > 3 |
++---------+--------------------------+
+|     102 |                        2 |
+|     104 |                        2 |
+|     105 |                        2 |
++---------+--------------------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT DEPT_ID , AVG(SALARY) AS "DEPT HAVING AVG SALARY > 50000" FROM EMP GROUP BY DEPT_ID HAVING AVG(SALARY) > 50000;
++---------+--------------------------------+
+| DEPT_ID | DEPT HAVING AVG SALARY > 50000 |
++---------+--------------------------------+
+|     101 |                   62000.000000 |
+|     102 |                   97500.000000 |
+|     103 |                   72000.000000 |
+|     104 |                   64500.000000 |
+|     105 |                   72500.000000 |
+|     106 |                   75000.000000 |
++---------+--------------------------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT LOC, COUNT(NAME) AS "EMPLOYEES IN EACH CITY" FROM EMP GROUP BY LOC;
++---------------+------------------------+
+| LOC           | EMPLOYEES IN EACH CITY |
++---------------+------------------------+
+| New York      |                      2 |
+| Chicago       |                      2 |
+| San Francisco |                      1 |
+| Seattle       |                      1 |
+| Austin        |                      1 |
+| Denver        |                      1 |
+| Scranton      |                      1 |
++---------------+------------------------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT LOC, COUNT(NAME) AS "EMPLOYEES IN EACH CITY" , AVG(SALARY) FROM EMP GROUP BY LOC;
++---------------+------------------------+---------------+
+| LOC           | EMPLOYEES IN EACH CITY | AVG(SALARY)   |
++---------------+------------------------+---------------+
+| New York      |                      2 |  76000.000000 |
+| Chicago       |                      2 |  66500.000000 |
+| San Francisco |                      1 | 110000.000000 |
+| Seattle       |                      1 |  72000.000000 |
+| Austin        |                      1 |  58000.000000 |
+| Denver        |                      1 |  75000.000000 |
+| Scranton      |                      1 |  78000.000000 |
++---------------+------------------------+---------------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT EMP.NAME,DEPT.DEPT_NAME, EMP.DEPT_ID FROM EMP JOIN DEPT ON EMP.DEPT_ID = DEPT.DEPT_ID;
++-----------------+-----------+---------+
+| NAME            | DEPT_NAME | DEPT_ID |
++-----------------+-----------+---------+
+| Bob Johnson     | FINANCE   |     101 |
+| Alice Smith     | DEV       |     102 |
+| Charlie Brown   | DEV       |     102 |
+| Diana Prince    | ANALYST   |     103 |
+| Evan Wright     | CLEANING  |     104 |
+| Oscar Martinez  | CLEANING  |     104 |
+| Fiona Gallagher | GUARDS    |     105 |
+| Michael Scott   | GUARDS    |     105 |
+| George Clark    | HR        |     106 |
++-----------------+-----------+---------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT EMP.NAME,DEPT.DEPT_NAME,EMP.LOC,EMP.DEPT_ID FROM EMP JOIN DEPT ON EMP.DEPT_ID = DEPT.DEPT_ID;
++-----------------+-----------+---------------+---------+
+| NAME            | DEPT_NAME | LOC           | DEPT_ID |
++-----------------+-----------+---------------+---------+
+| Bob Johnson     | FINANCE   | Chicago       |     101 |
+| Alice Smith     | DEV       | New York      |     102 |
+| Charlie Brown   | DEV       | San Francisco |     102 |
+| Diana Prince    | ANALYST   | Seattle       |     103 |
+| Evan Wright     | CLEANING  | Austin        |     104 |
+| Oscar Martinez  | CLEANING  | Chicago       |     104 |
+| Fiona Gallagher | GUARDS    | New York      |     105 |
+| Michael Scott   | GUARDS    | Scranton      |     105 |
+| George Clark    | HR        | Denver        |     106 |
++-----------------+-----------+---------------+---------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT EMP.NAME,DEPT.DEPT_NAME AS 'EMPLOYEES IN IT' FROM EMP JOIN DEPT ON EMP.DEPT_ID = DEPT.DEPT_ID HAVING DEPT.DEPT_NAME = 'IT';
+Empty set (0.00 sec)
+
+mysql> SELECT EMP.NAME,DEPT.DEPT_NAME AS 'EMPLOYEES IN IT' FROM EMP JOIN DEPT ON EMP.DEPT_ID = DEPT.DEPT_ID HAVING DEPT.DEPT_NAME = 'DEV';
++---------------+-----------------+
+| NAME          | EMPLOYEES IN IT |
++---------------+-----------------+
+| Alice Smith   | DEV             |
+| Charlie Brown | DEV             |
++---------------+-----------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT EMP.NAME,DEPT.* FROM EMP JOIN DEPT ON EMP.DEPT_ID = DEPT.DEPT_ID;
++-----------------+---------+-----------+-------+
+| NAME            | dept_id | dept_name | floor |
++-----------------+---------+-----------+-------+
+| Bob Johnson     |     101 | FINANCE   |     1 |
+| Alice Smith     |     102 | DEV       |     2 |
+| Charlie Brown   |     102 | DEV       |     2 |
+| Diana Prince    |     103 | ANALYST   |     3 |
+| Evan Wright     |     104 | CLEANING  |     1 |
+| Oscar Martinez  |     104 | CLEANING  |     1 |
+| Fiona Gallagher |     105 | GUARDS    |     4 |
+| Michael Scott   |     105 | GUARDS    |     4 |
+| George Clark    |     106 | HR        |     2 |
++-----------------+---------+-----------+-------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT
+    ->     d.dept_id,
+    ->     d.dept_name,
+    ->     d.floor,
+    ->     e.emp_id,
+    ->     e.name AS employee_name
+    -> FROM dept d
+    -> LEFT JOIN emp e ON d.dept_id = e.dept_id;
++---------+-----------+-------+--------+-----------------+
+| dept_id | dept_name | floor | emp_id | employee_name   |
++---------+-----------+-------+--------+-----------------+
+|     101 | FINANCE   |     1 |      2 | Bob Johnson     |
+|     102 | DEV       |     2 |      1 | Alice Smith     |
+|     102 | DEV       |     2 |      3 | Charlie Brown   |
+|     103 | ANALYST   |     3 |      4 | Diana Prince    |
+|     104 | CLEANING  |     1 |      5 | Evan Wright     |
+|     104 | CLEANING  |     1 |      9 | Oscar Martinez  |
+|     105 | GUARDS    |     4 |      6 | Fiona Gallagher |
+|     105 | GUARDS    |     4 |      8 | Michael Scott   |
+|     106 | HR        |     2 |      7 | George Clark    |
++---------+-----------+-------+--------+-----------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT e.* FROM emp e
+    -> LEFT JOIN dept d ON e.dept_id = d.dept_id
+    -> WHERE e.dept_id IS NULL OR d.dept_id IS NULL;
+Empty set (0.00 sec)
+
+mysql> SELECT d.dept_id, d.dept_name, COUNT(e.emp_id) AS total_employees
+    -> FROM dept d
+    -> LEFT JOIN emp e ON d.dept_id = e.dept_id
+    -> GROUP BY d.dept_id, d.dept_name;
++---------+-----------+-----------------+
+| dept_id | dept_name | total_employees |
++---------+-----------+-----------------+
+|     101 | FINANCE   |               1 |
+|     102 | DEV       |               2 |
+|     103 | ANALYST   |               1 |
+|     104 | CLEANING  |               2 |
+|     105 | GUARDS    |               2 |
+|     106 | HR        |               1 |
++---------+-----------+-----------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT e.name, e.salary, d.dept_name
+    -> FROM emp e
+    -> JOIN dept d ON e.dept_id = d.dept_id
+    -> WHERE (e.dept_id, e.salary) IN (
+    ->     SELECT dept_id, MAX(salary)
+    ->     FROM emp
+    ->     GROUP BY dept_id
+    -> );
++----------------+-----------+-----------+
+| name           | salary    | dept_name |
++----------------+-----------+-----------+
+| Bob Johnson    |  62000.00 | FINANCE   |
+| Charlie Brown  | 110000.00 | DEV       |
+| Diana Prince   |  72000.00 | ANALYST   |
+| Oscar Martinez |  71000.00 | CLEANING  |
+| Michael Scott  |  78000.00 | GUARDS    |
+| George Clark   |  75000.00 | HR        |
++----------------+-----------+-----------+
+6 rows in set (0.03 sec)
+
+mysql> SELECT e.name AS employee_name, e.salary, d.dept_name, e.loc AS location
+    -> FROM emp e
+    -> JOIN dept d ON e.dept_id = d.dept_id;
++-----------------+-----------+-----------+---------------+
+| employee_name   | salary    | dept_name | location      |
++-----------------+-----------+-----------+---------------+
+| Bob Johnson     |  62000.00 | FINANCE   | Chicago       |
+| Alice Smith     |  85000.00 | DEV       | New York      |
+| Charlie Brown   | 110000.00 | DEV       | San Francisco |
+| Diana Prince    |  72000.00 | ANALYST   | Seattle       |
+| Evan Wright     |  58000.00 | CLEANING  | Austin        |
+| Oscar Martinez  |  71000.00 | CLEANING  | Chicago       |
+| Fiona Gallagher |  67000.00 | GUARDS    | New York      |
+| Michael Scott   |  78000.00 | GUARDS    | Scranton      |
+| George Clark    |  75000.00 | HR        | Denver        |
++-----------------+-----------+-----------+---------------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT e.name, e.salary, e.loc, d.dept_name
+    -> FROM emp e
+    -> JOIN dept d ON e.dept_id = d.dept_id
+    -> WHERE e.loc = 'Delhi';
+Empty set (0.00 sec)
+
+mysql> SELECT d.dept_id, d.dept_name, COALESCE(SUM(e.salary), 0) AS total_salary_paid
+    -> FROM dept d
+    -> LEFT JOIN emp e ON d.dept_id = e.dept_id
+    -> GROUP BY d.dept_id, d.dept_name;
++---------+-----------+-------------------+
+| dept_id | dept_name | total_salary_paid |
++---------+-----------+-------------------+
+|     101 | FINANCE   |          62000.00 |
+|     102 | DEV       |         195000.00 |
+|     103 | ANALYST   |          72000.00 |
+|     104 | CLEANING  |         129000.00 |
+|     105 | GUARDS    |         145000.00 |
+|     106 | HR        |          75000.00 |
++---------+-----------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT d.dept_id, d.dept_name, COUNT(e.emp_id) AS total_employees
+    -> FROM dept d
+    -> JOIN emp e ON d.dept_id = e.dept_id
+    -> GROUP BY d.dept_id, d.dept_name
+    -> HAVING COUNT(e.emp_id) > 5;
+Empty set (0.00 sec)
+
+mysql> SELECT
+    ->     d.dept_id,
+    ->     d.dept_name,
+    ->     ROUND(AVG(e.salary), 2) AS max_avg_salary
+    -> FROM dept d
+    -> JOIN emp e ON d.dept_id = e.dept_id
+    -> GROUP BY d.dept_id, d.dept_name
+    -> ORDER BY max_avg_salary DESC
+    -> LIMIT 1;
++---------+-----------+----------------+
+| dept_id | dept_name | max_avg_salary |
++---------+-----------+----------------+
+|     102 | DEV       |       97500.00 |
++---------+-----------+----------------+
+1 row in set (0.03 sec)
+
+mysql> SELECT
+    ->     d.dept_id,
+    ->     d.dept_name,
+    ->     COUNT(e.emp_id) AS total_employees
+    -> FROM dept d
+    -> JOIN emp e ON d.dept_id = e.dept_id
+    -> GROUP BY d.dept_id, d.dept_name
+    -> ORDER BY total_employees DESC
+    -> LIMIT 1;
++---------+-----------+-----------------+
+| dept_id | dept_name | total_employees |
++---------+-----------+-----------------+
+|     102 | DEV       |               2 |
++---------+-----------+-----------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT
+    ->     emp_id,
+    ->     name,
+    ->     age,
+    ->     salary
+    -> FROM emp
+    -> WHERE age > (SELECT AVG(age) FROM emp);
++--------+----------------+------+-----------+
+| emp_id | name           | age  | salary    |
++--------+----------------+------+-----------+
+|      2 | Bob Johnson    |   35 |  62000.00 |
+|      3 | Charlie Brown  |   42 | 110000.00 |
+|      7 | George Clark   |   38 |  75000.00 |
+|      8 | Michael Scott  |   44 |  78000.00 |
+|      9 | Oscar Martinez |   39 |  71000.00 |
++--------+----------------+------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT
+    ->     e.emp_id,
+    ->     e.name,
+    ->     e.dept_id,
+    ->     e.salary
+    -> FROM emp e
+    -> WHERE e.salary > (
+    ->     SELECT AVG(salary)
+    ->     FROM emp
+    ->     WHERE dept_id = e.dept_id
+    -> );
++--------+----------------+---------+-----------+
+| emp_id | name           | dept_id | salary    |
++--------+----------------+---------+-----------+
+|      3 | Charlie Brown  |     102 | 110000.00 |
+|      8 | Michael Scott  |     105 |  78000.00 |
+|      9 | Oscar Martinez |     104 |  71000.00 |
++--------+----------------+---------+-----------+
+3 rows in set (0.00 sec)
